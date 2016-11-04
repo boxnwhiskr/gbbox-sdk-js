@@ -11,7 +11,7 @@
     var apiUrl = 
       this._endPoint +
       '/logs/' + this._token +
-      '?tid=' + getTID() +
+      '?tid=' + getTID(this._endPoint) +
       '&q=' + encodeURIComponent(path) +
       '&dummy=' + (Date.now() * 100 + (Math.random() * 100)|0);
     var beacon = new Image();
@@ -19,7 +19,7 @@
   };
 
   gbbox.API.prototype.route = function(expIds, callback) {
-    var assignmentsStr = getCookie('_gb_routes');
+    var assignmentsStr = getCookie(this._endPoint, '_gb_routes');
     if(assignmentsStr) {
       callback(JSON.parse(assignmentsStr));
     } else {
@@ -28,6 +28,7 @@
   };
 
   gbbox.API.prototype._route = function(expIds, callback) {
+    var self = this;
     root._gb_route_callback = function(assignments, minTtl) {
         // Parse arm-id string
         for(var expId in assignments) {
@@ -45,7 +46,7 @@
 
         // Save assignments to cookie
         var expires = new Date(Date.now() + minTtl * 1000);
-        setCookie('_gb_routes', JSON.stringify(assignments), expires)
+        setCookie(self._endPoint, '_gb_routes', JSON.stringify(assignments), expires)
 
         // Done
         callback(assignments);
@@ -57,12 +58,12 @@
       '/routes_by_token/' + this._token +
       '?_accept=text/javascript' +
       '&exp_ids=' + encodeURIComponent(expIds.join(',')) +
-      '&tid=' + getTID();
+      '&tid=' + getTID(this._endPoint);
     document.head.appendChild(jsonpScript);
   }
 
-  function getTID() {
-    var tid = getCookie('_gb_tid');
+  function getTID(endPoint) {
+    var tid = getCookie(endPoint, '_gb_tid');
     if(tid) return tid;
 
     // Generate tid
@@ -73,16 +74,18 @@
       tidChars.push(chars[(Math.random() * chars.length)|0]);
     }
     var tid = tidChars.join('');
-    setCookie('_gb_tid', tid, new Date(Date.now() + 10 * 365 * 24 * 60 * 60 * 1000));
+    setCookie(endPoint, '_gb_tid', tid, new Date(Date.now() + 10 * 365 * 24 * 60 * 60 * 1000));
     return tid;
   }
 
-  function setCookie(key, value, expires) {
+  function setCookie(endPoint, key, value, expires) {
+    key = hash(endPoint) + '_' + key;
     cookie = key + '=' + value + '; path=/; expires=' + expires.toUTCString();
     document.cookie = cookie;
   }
 
-  function getCookie(key) {
+  function getCookie(endPoint, key) {
+    key = hash(endPoint) + '_' + key;
     var pairs = document.cookie.split(';');
     for(var i = 0; i < pairs.length; i++) {
       var pair = pairs[i].trim();
@@ -92,6 +95,14 @@
       if(key === k) return v;
     }
     return null;
+  }
+
+  function hash(value) {
+    var state = 5381;
+    for(var i = 0; i < value.length; i++) {
+      state = ((state << 5) + state + value.charCodeAt(i)) & 0xFFFFFFFF;
+    }
+    return state;
   }
 
   root._gbbox = gbbox;
