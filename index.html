@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<script src="gbbox-sdk.js"></script>
+<style>
+	.assignment {
+		margin-left: 1rem;
+	}
+</style>
+</head>
+<body>
+<p>Pages:</p>
+<ul class="pages">
+	<li><a href="#">/hello</a></li>
+	<li><a href="#">/watch/300</a></li>
+	<li><a href="#">/purchase/500</a></li>
+</ul>
+<p>Experiments:</p>
+<ul class="experiments">
+	<li><a href="#">list</a><span class="assignment">?</span></li>
+</ul>
+<script>
+var pageLinks = document.querySelectorAll('.pages a');
+for(var i = 0; i < pageLinks.length; i++) {
+	var link = pageLinks[i];
+        link.addEventListener('click', function(e) {
+		e.preventDefault();
+		gbapi.sendPageview(e.target.innerHTML);
+	});
+}
+
+var expLinks = document.querySelectorAll('.experiments a');
+for(var i = 0; i < expLinks.length; i++) {
+	var link = expLinks[i];
+	link.addEventListener('click', function(e) {
+		e.preventDefault();
+                var expId = e.target.innerHTML;
+		gbapi.route([expId], function(assignments) {
+			e.target.nextSibling.innerHTML = JSON.stringify(assignments[expId]);
+		});
+	});
+}
+</script>
+</body>
+</html>
