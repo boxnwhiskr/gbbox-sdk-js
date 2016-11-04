@@ -79,13 +79,13 @@
   }
 
   function setCookie(endPoint, key, value, expires) {
-    key = hash(endPoint) + '_' + key;
+    key = key + '_' + hash(endPoint);
     cookie = key + '=' + value + '; path=/; expires=' + expires.toUTCString();
     document.cookie = cookie;
   }
 
   function getCookie(endPoint, key) {
-    key = hash(endPoint) + '_' + key;
+    key = key + '_' + hash(endPoint);
     var pairs = document.cookie.split(';');
     for(var i = 0; i < pairs.length; i++) {
       var pair = pairs[i].trim();
@@ -102,7 +102,7 @@
     for(var i = 0; i < value.length; i++) {
       state = ((state << 5) + state + value.charCodeAt(i)) & 0xFFFFFFFF;
     }
-    return state;
+    return Math.abs(state);
   }
 
   root._gbbox = gbbox;
