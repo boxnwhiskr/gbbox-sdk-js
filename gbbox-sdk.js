@@ -8,7 +8,7 @@
 
   gbbox.API.prototype.sendPageview = function(path) {
     path = path || location.href.match(/https?:\/\/[^/]+(.*)/)[1];
-    var apiUrl = 
+    var apiUrl =
       this._endPoint +
       '/logs/' + this._token +
       '?tid=' + getTID(this._endPoint) +
@@ -69,7 +69,7 @@
     // Generate tid
     var chars = '1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
     var len = 16;
-    var tidChars = [];
+    var tidChars = ['_'];
     for(var i = 0; i < len; i++) {
       tidChars.push(chars[(Math.random() * chars.length)|0]);
     }
